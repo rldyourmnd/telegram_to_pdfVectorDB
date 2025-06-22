@@ -1,0 +1,124 @@
+# =============================================================================
+# TELEGRAM CHAT PDF PROCESSOR - GITIGNORE
+# =============================================================================
+
+# Environment variables (contains sensitive data)
+.env
+.env.local
+.env.development
+.env.test
+.env.staging
+
+# Input data files (may contain personal information)
+result.json
+*.json
+!.env.example
+!.env.production
+!metadata_summary.json
+
+# Output directories
+chats_clean_pdf/
+output/
+pdfs/
+exports/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+log/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Personal data and exports (extra protection)
+telegram_export/
+my_chats/
+personal_data/
+chat_backups/
+
+# Development artifacts
+test_data/
+sample_data/
+debug_output/ 
