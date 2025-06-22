@@ -24,14 +24,17 @@ except Exception as e:
 
 # Configuration from environment variables with defaults
 class Config:
+    """Configuration class that loads settings from environment variables"""
+    
     # Input/Output settings
     INPUT_FILE = os.getenv('INPUT_FILE', 'result.json')
     OUTPUT_DIR = os.getenv('OUTPUT_DIR', 'chats_clean_pdf')
+    METADATA_DIR = os.getenv('METADATA_DIR', 'metadata')
     METADATA_FILE = os.getenv('METADATA_FILE', 'metadata_summary.json')
     
     # User identification
-    USER_NAME = os.getenv('USER_NAME', 'Danil')
-    USER_ID = os.getenv('USER_ID', 'user904048578')
+    USER_NAME = os.getenv('USER_NAME', 'Your Name')
+    USER_ID = os.getenv('USER_ID', 'user123456789')
     
     # PDF generation settings
     MAX_FILE_SIZE_KB = int(os.getenv('MAX_FILE_SIZE_KB', '200'))
@@ -44,9 +47,9 @@ class Config:
     PDF_MARGIN_RIGHT = int(os.getenv('PDF_MARGIN_RIGHT', '40'))
     
     # Chunking algorithm settings
-    CHUNK_SIZE_SHORT = int(os.getenv('CHUNK_SIZE_SHORT', '25'))
-    CHUNK_SIZE_MEDIUM = int(os.getenv('CHUNK_SIZE_MEDIUM', '18'))
-    CHUNK_SIZE_LONG = int(os.getenv('CHUNK_SIZE_LONG', '12'))
+    SHORT_MESSAGE_CHUNK_SIZE = int(os.getenv('CHUNK_SIZE_SHORT', '25'))
+    MEDIUM_MESSAGE_CHUNK_SIZE = int(os.getenv('CHUNK_SIZE_MEDIUM', '18'))
+    LONG_MESSAGE_CHUNK_SIZE = int(os.getenv('CHUNK_SIZE_LONG', '12'))
     MIN_CHUNKS_PER_FILE = int(os.getenv('MIN_CHUNKS_PER_FILE', '12'))
     MAX_CHUNKS_PER_FILE = int(os.getenv('MAX_CHUNKS_PER_FILE', '100'))
     SIZE_ESTIMATION_MULTIPLIER = float(os.getenv('SIZE_ESTIMATION_MULTIPLIER', '0.005'))
@@ -64,8 +67,8 @@ class Config:
     DEFAULT_FONT = os.getenv('DEFAULT_FONT', 'Helvetica')
     
     # Debug and logging
-    VERBOSE_LOGGING = os.getenv('VERBOSE_LOGGING', 'true').lower() == 'true'
-    SHOW_FONT_INFO = os.getenv('SHOW_FONT_INFO', 'true').lower() == 'true'
+    VERBOSE_LOGGING = os.getenv('VERBOSE_LOGGING', 'false').lower() == 'true'
+    SHOW_FONT_INFO = os.getenv('SHOW_FONT_INFO', 'false').lower() == 'true'
     SHOW_PROGRESS = os.getenv('SHOW_PROGRESS', 'true').lower() == 'true'
 
 def sanitize_filename(name):
@@ -266,11 +269,11 @@ def create_optimized_pdf_parts(chat_name, messages, output_dir=None, max_size_kb
     
     # Dynamic chunk sizes based on configuration
     if avg_msg_length < Config.SHORT_MESSAGE_THRESHOLD:
-        chunk_size = Config.CHUNK_SIZE_SHORT
+        chunk_size = Config.SHORT_MESSAGE_CHUNK_SIZE
     elif avg_msg_length < Config.LONG_MESSAGE_THRESHOLD:
-        chunk_size = Config.CHUNK_SIZE_MEDIUM
+        chunk_size = Config.MEDIUM_MESSAGE_CHUNK_SIZE
     else:
-        chunk_size = Config.CHUNK_SIZE_LONG
+        chunk_size = Config.LONG_MESSAGE_CHUNK_SIZE
     
     # File size estimation based on configuration
     estimated_kb_per_chunk = max(1.2, avg_msg_length * Config.SIZE_ESTIMATION_MULTIPLIER)
@@ -426,11 +429,12 @@ def process_telegram_chats_optimized(input_file=None):
     
     print(f"📂 Found {len(chat_list)} chats to process")
     
-    # Create output directory
+    # Create output directories
     try:
         os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
+        os.makedirs(Config.METADATA_DIR, exist_ok=True)
     except Exception as e:
-        print(f"❌ Error creating output directory: {e}")
+        print(f"❌ Error creating directories: {e}")
         return False
     
     # Processing counters
@@ -569,10 +573,10 @@ def process_telegram_chats_optimized(input_file=None):
     
     # Save summary for n8n workflow
     try:
-        metadata_path = os.path.join(Config.OUTPUT_DIR, Config.METADATA_FILE)
+        metadata_path = os.path.join(Config.METADATA_DIR, Config.METADATA_FILE)
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(summary_data, f, ensure_ascii=False, indent=2)
-        print(f"📋 Metadata saved: {Config.METADATA_FILE}")
+        print(f"📋 Metadata saved: {Config.METADATA_DIR}/{Config.METADATA_FILE}")
     except Exception as e:
         print(f"⚠️  Warning: Could not save metadata: {e}")
     
@@ -603,7 +607,7 @@ def process_telegram_chats_optimized(input_file=None):
     print(f"   1. Text Splitter settings: chunk_size=800, overlap=200")
     print(f"   2. Process files in batches of 5-8 for optimal memory usage")
     print(f"   3. Search patterns: 'Me:', 'From [NAME]:', person names")
-    print(f"   4. Use {Config.METADATA_FILE} for person identification")
+    print(f"   4. Use {Config.METADATA_DIR}/{Config.METADATA_FILE} for person identification")
     print(f"   5. Vector dimensions: 1536 (OpenAI) or 768 (local models)")
     print(f"   6. Recommended embedding model: text-embedding-ada-002")
     print(f"   7. PDF text extraction: use 'pdf-parse' node before text splitter")
@@ -650,4 +654,4 @@ if __name__ == "__main__":
         print("\n✅ All done! Ready for n8n processing.")
         if Config.VERBOSE_LOGGING:
             print(f"📁 Check {Config.OUTPUT_DIR}/ directory for generated PDFs")
-            print(f"📋 Check {Config.METADATA_FILE} for processing metadata") 
+            print(f"📋 Check {Config.METADATA_DIR}/{Config.METADATA_FILE} for processing metadata") 

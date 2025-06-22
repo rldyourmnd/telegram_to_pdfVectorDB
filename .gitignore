@@ -12,12 +12,11 @@
 # Input data files (may contain personal information)
 result.json
 *.json
-!.env.example
-!.env.production
 !metadata_summary.json
 
 # Output directories
 chats_clean_pdf/
+metadata/
 output/
 pdfs/
 exports/
