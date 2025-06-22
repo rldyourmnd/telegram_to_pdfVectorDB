@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 title Telegram Chat PDF Processor
 color 0A
 
@@ -35,8 +36,8 @@ echo.
 echo 🔍 Checking Python installation...
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo ❌ Python is not installed or not in PATH
-    echo Please install Python 3.7+ from https://python.org
+    echo ❌ Python not found! Please install Python 3.7+ first.
+    echo Download from: https://www.python.org/downloads/
     pause
     exit /b 1
 )
@@ -63,9 +64,39 @@ echo.
 echo 🚀 Starting Telegram Chat PDF Processor...
 echo.
 
+REM Check if result.json exists
+if not exist result.json (
+    echo ❌ result.json not found!
+    echo Please place your Telegram export file as 'result.json' in this directory
+    echo.
+    echo How to export:
+    echo 1. Open Telegram Desktop
+    echo 2. Settings → Advanced → Export Telegram data
+    echo 3. Select 'Personal chats' and 'Machine-readable JSON'
+    echo 4. Save as 'result.json' in this folder
+    echo.
+    pause
+    exit /b 1
+)
+
+echo ✅ result.json found
+echo.
+
+REM Create output directories
+if not exist chats_clean_pdf mkdir chats_clean_pdf
+if not exist metadata mkdir metadata
+
+echo 🚀 Starting processing...
+echo.
+
+REM Run the main script
 python process_telegram_chats.py
 
 echo.
 echo 🎯 Processing completed!
+echo.
+echo 📁 Check these folders:
+echo    - chats_clean_pdf/     (PDF files)
+echo    - metadata/            (processing info)
 echo.
 pause 
